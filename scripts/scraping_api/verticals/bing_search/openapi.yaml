@@ -1,0 +1,124 @@
+openapi: 3.0.3
+info:
+  title: Bing Web Search API — Residential IP
+  description: |
+    Purpose-built Bing web search wrapper. Fetches a bing.com SERP
+    through residential proxies and returns parsed organic results
+    as clean JSON — no raw HTML, no client-side parsing.
+
+    Bing-only by design. In tests, Bing returns real organic results
+    consistently from static-HTML scraping; Google requires JS render
+    and DuckDuckGo serves anti-bot challenge pages. Listing only what
+    works.
+
+    Built for SEO competitive analysis, rank tracking on Bing, and
+    content research that doesn't need Google-specific data.
+  version: 0.1.0
+  contact:
+    name: moneymaker-fleet
+    url: https://example.com
+servers:
+  - url: https://api.example.com
+    description: Production
+security:
+  - bearerAuth: []
+paths:
+  /v1/scrape/bing-search:
+    get:
+      summary: Run a Bing web search
+      description: |
+        Returns parsed organic results from a bing.com SERP. Each
+        result has `title`, `url`, `snippet`, and 1-indexed `rank`
+        within the returned page.
+      operationId: bingSearch
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query
+          schema:
+            type: string
+          example: best running shoes 2026
+        - name: count
+          in: query
+          description: Results per page (1..50)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+        - name: offset
+          in: query
+          description: 0-indexed pagination offset (0, 10, 20, ...)
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 900
+            default: 0
+        - name: cc
+          in: query
+          description: Country code, e.g. 'US', 'GB', 'DE'
+          schema:
+            type: string
+            default: US
+      responses:
+        "200":
+          description: Parsed Bing organic results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BingSearchResponse"
+        "401":
+          description: Missing or invalid API key
+        "429":
+          description: Rate limit / quota exceeded
+        "502":
+          description: Upstream proxy error (transient — retry)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    BingSearchResponse:
+      type: object
+      required: [query, results, engine, ip_used]
+      properties:
+        query:
+          type: string
+          description: The query that was searched (echo of `q`)
+          example: best running shoes 2026
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/BingResult"
+        engine:
+          type: string
+          description: Always "bing" for this endpoint
+          enum: [bing]
+        ip_used:
+          type: string
+          description: The residential egress IP that fetched the SERP
+          example: 192.0.2.1
+    BingResult:
+      type: object
+      required: [title, url, snippet, rank]
+      properties:
+        title:
+          type: string
+          description: Result headline
+          example: Best Running Shoes of 2026 — Runner's World
+        url:
+          type: string
+          format: uri
+          description: Destination URL of the organic result
+          example: https://www.runnersworld.com/gear/a12345/best-running-shoes/
+        snippet:
+          type: string
+          description: Bing-generated description snippet under the title
+          example: Our team tested 50+ pairs across road, trail, and racing categories...
+        rank:
+          type: integer
+          description: 1-indexed rank within the returned page
+          minimum: 1
+          example: 1
