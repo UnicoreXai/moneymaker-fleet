@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>moneymaker-fleet — Command Center (example)</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0a0e17; --card:#111827; --card2:#0f172a; --border:#1e293b;
+  --text:#e2e8f0; --muted:#94a3b8; --accent:#22d3ee;
+  --green:#10b981; --red:#ef4444; --yellow:#f59e0b;
+  --purple:#a78bfa; --blue:#3b82f6; --orange:#f97316;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.5}
+.container{max-width:1400px;margin:0 auto;padding:16px}
+code,.mono{font-family:'JetBrains Mono',Consolas,Menlo,monospace}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+header h1{font-size:1.25rem;color:var(--accent);letter-spacing:1.5px}
+header .meta{font-size:.78rem;color:var(--muted)}
+
+.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:20px}
+.tile{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px}
+.tile .lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:6px}
+.tile .big{font-size:2.2rem;font-weight:800;line-height:1.1}
+.tile .sub{font-size:.75rem;color:var(--muted);margin-top:6px}
+.tile.net{border-color:var(--green)}
+.tile .big.green{color:var(--green)}
+.tile .big.amber{color:var(--yellow)}
+
+section.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:18px}
+section.card h2{font-size:.85rem;color:var(--accent);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
+section.card h3{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin:14px 0 6px}
+
+.matrix{font-family:'JetBrains Mono',Consolas,monospace;font-size:.72rem;overflow-x:auto}
+.matrix table{border-collapse:collapse;width:100%;min-width:760px}
+.matrix th,.matrix td{padding:4px 6px;text-align:center;border-bottom:1px solid var(--border)}
+.matrix th{color:var(--muted);font-weight:600;font-size:.65rem;text-transform:uppercase;writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;height:90px;vertical-align:bottom}
+.matrix th.lbl-col,.matrix td.lbl-col{writing-mode:horizontal-tb;transform:none;text-align:left;color:var(--text);font-weight:600;height:auto}
+.cell-ok{color:var(--green);font-weight:700}
+.cell-warn{color:var(--yellow);font-weight:700}
+.cell-fail{color:var(--red);font-weight:700}
+.cell-na{color:#374151}
+
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.chart-card{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:12px}
+.chart-card h4{font-size:.78rem;color:var(--text);margin-bottom:6px}
+.chart-card .meta{font-size:.65rem;color:var(--muted);margin-bottom:8px}
+
+.banner{background:linear-gradient(135deg,#0c1226,#0a0e17);border:1px solid var(--purple);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:.82rem;color:var(--text)}
+.banner strong{color:var(--purple)}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>moneymaker-fleet — Command Center</h1>
+  <span class="meta">example data — replace via scripts/regen_revenue_projection.py</span>
+</header>
+
+<div class="banner">
+  <strong>Demo build.</strong> All numbers below are illustrative. Wire up
+  <code>realized_revenue_collector.py</code> + <code>regen_revenue_projection.py</code>
+  + <code>daily_fleet_health.py</code> to populate from your fleet.
+</div>
+
+<!-- Hero P&L tiles -->
+<div class="hero">
+  <div class="tile">
+    <div class="lbl">Realized 30d (on-chain)</div>
+    <div class="big green">$0.00</div>
+    <div class="sub">Sum of incoming token + native receives, classified by sender.</div>
+  </div>
+  <div class="tile">
+    <div class="lbl">Pending (Layer 2)</div>
+    <div class="big amber">$0.00</div>
+    <div class="sub">Service-side balances waiting on threshold.</div>
+  </div>
+  <div class="tile">
+    <div class="lbl">Monthly variable cost</div>
+    <div class="big">$0.00</div>
+    <div class="sub">Residential proxies, paid APIs. Infra (VPS) excluded as sunk.</div>
+  </div>
+  <div class="tile net">
+    <div class="lbl">Operating margin</div>
+    <div class="big green">+$0.00</div>
+    <div class="sub">Realized − variable cost. Tracks toward break-even.</div>
+  </div>
+</div>
+
+<!-- Fleet coverage matrix -->
+<section class="card">
+  <h2>Fleet coverage matrix</h2>
+  <div class="matrix">
+    <table id="matrixTable">
+      <!-- populated from FLEET + SERVICES below -->
+    </table>
+  </div>
+</section>
+
+<!-- Revenue projection fan charts -->
+<section class="card">
+  <h2>Revenue projection (30-day GBM bands)</h2>
+  <p style="font-size:.78rem;color:var(--muted);margin-bottom:10px">
+    For each token your fleet earns in, 90-day historical volatility is projected forward 30 days at +/- 0,1,2,3 sigma.
+    Stable USD/USDT services bundle into a flat baseline.
+  </p>
+  <div id="projGrid" class="chart-grid"></div>
+  <div id="projMeta" style="font-size:.7rem;color:var(--muted);margin-top:8px"></div>
+</section>
+
+<!-- Forum chat (worker swarm posts) -->
+<section class="card">
+  <h2>Worker swarm forum (last 50)</h2>
+  <p style="font-size:.78rem;color:var(--muted);margin-bottom:10px">
+    Each line is one cycle of one node's mm-agent. <code>topic:report</code> = normal
+    cycle; <code>alert</code> = container crashloop / cap_hit / anomaly; <code>question</code> /
+    <code>answer</code> = peer-to-peer help.
+  </p>
+  <div id="forumPosts" style="font-family:'JetBrains Mono',Consolas,monospace;font-size:.72rem;max-height:400px;overflow-y:auto;background:var(--card2);padding:10px;border-radius:6px">
+    (Forum starts populating once your mm-agent workers are deployed. See docs/HERMES_SWARM.md.)
+  </div>
+</section>
+
+<script>
+// =============================================================================
+// EXAMPLE DATA SCHEMAS
+// =============================================================================
+// Replace these with live data from your collectors. The two pieces that get
+// regenerated daily are FLEET (from daily_fleet_health.py / your provider API)
+// and REVENUE_PROJECTION (from regen_revenue_projection.py).
+
+// ----- Fleet coverage matrix data -----
+// Each row is one node, with per-service status: "ok" | "warn" | "fail" | "na"
+const FLEET = [
+  {"i":1,  "label":"node-01", "svcs":{"Pawns":"ok","EarnFM":"ok","Repocket":"ok","TraffMonetizer":"ok","ProxyRack":"ok","Bitping":"ok"}},
+  {"i":2,  "label":"node-02", "svcs":{"Pawns":"ok","EarnFM":"ok","Repocket":"ok","TraffMonetizer":"ok","ProxyRack":"ok","Bitping":"ok"}},
+  {"i":3,  "label":"node-03", "svcs":{"Pawns":"ok","EarnFM":"warn","Repocket":"ok","TraffMonetizer":"ok","ProxyRack":"ok","Bitping":"na"}},
+  {"i":4,  "label":"node-04", "svcs":{"Pawns":"ok","EarnFM":"ok","Repocket":"ok","TraffMonetizer":"ok","ProxyRack":"fail","Bitping":"ok"}},
+  {"i":5,  "label":"node-05", "svcs":{"Pawns":"ok","EarnFM":"ok","Repocket":"ok","TraffMonetizer":"ok","ProxyRack":"ok","Bitping":"ok"}}
+];
+
+const SERVICES = ["Pawns","EarnFM","Repocket","TraffMonetizer","ProxyRack","Bitping"];
+
+// ----- Revenue projection data (regenerated by scripts/regen_revenue_projection.py) -----
+// BEGIN_PROJ_DATA
+const REVENUE_PROJECTION = {
+  "generated": 0,
+  "horizon_days": 30,
+  "baseline_usd": 0.0,
+  "monthly_cost_usd": 0.0,
+  "tokens": []
+};
+// END_PROJ_DATA
+
+// =============================================================================
+// MATRIX RENDERING
+// =============================================================================
+(function renderMatrix(){
+  const tbl = document.getElementById('matrixTable');
+  if(!tbl) return;
+  const head = '<thead><tr><th class="lbl-col">node</th>' + SERVICES.map(s => `<th>${s}</th>`).join('') + '</tr></thead>';
+  const body = '<tbody>' + FLEET.map(node => {
+    const cells = SERVICES.map(s => {
+      const st = node.svcs[s] || 'na';
+      const cls = st === 'ok' ? 'cell-ok' : st === 'warn' ? 'cell-warn' : st === 'fail' ? 'cell-fail' : 'cell-na';
+      const sym = st === 'ok' ? '+' : st === 'warn' ? '~' : st === 'fail' ? 'x' : '-';
+      return `<td class="${cls}">${sym}</td>`;
+    }).join('');
+    return `<tr><td class="lbl-col">${node.label}</td>${cells}</tr>`;
+  }).join('') + '</tbody>';
+  tbl.innerHTML = head + body;
+})();
+
+// =============================================================================
+// REVENUE PROJECTION FAN-CHART RENDERING
+// =============================================================================
+(function renderProj(){
+  const grid = document.getElementById('projGrid');
+  const meta = document.getElementById('projMeta');
+  if(!grid) return;
+  if(!REVENUE_PROJECTION.tokens.length){
+    grid.innerHTML = '<div style="color:var(--muted);padding:8px">' +
+      'No projection data yet. Run <code>python scripts/regen_revenue_projection.py</code> ' +
+      'after editing the TOKENS list to populate live projections from CoinGecko.</div>';
+    return;
+  }
+  const gen = new Date(REVENUE_PROJECTION.generated * 1000);
+  meta.textContent = ' Generated ' + gen.toLocaleString();
+  // (Real fan-chart rendering omitted here for the OSS template; see the
+  // production index.html in the maintainer's fleet for the full Chart.js
+  // implementation. The data shape above is the same.)
+  grid.innerHTML = '<div style="color:var(--muted);padding:8px">' +
+    REVENUE_PROJECTION.tokens.length + ' token stream(s) loaded. Chart.js fan-chart rendering ' +
+    'goes here — wire it into your fork.</div>';
+})();
+
+// =============================================================================
+// FORUM (worker swarm posts)
+// =============================================================================
+(async function loadForum(){
+  const el = document.getElementById('forumPosts');
+  if(!el) return;
+  try {
+    const r = await fetch('/api/forum?limit=50');
+    if(!r.ok) return;
+    const posts = await r.json();
+    if(!Array.isArray(posts) || !posts.length) return;
+    el.innerHTML = posts.map(p => {
+      const ts = new Date(p.ts).toLocaleTimeString();
+      const topicColor = p.topic === 'alert' ? 'var(--red)' :
+                         p.topic === 'question' ? 'var(--yellow)' :
+                         p.topic === 'answer' ? 'var(--green)' :
+                         'var(--muted)';
+      return `<div style="padding:4px 0;border-bottom:1px dotted var(--border)">
+        <span style="color:var(--muted)">${ts}</span>
+        <span style="color:var(--accent)">${p.from || ''}</span>
+        <span style="color:${topicColor}">[${p.topic}]</span>
+        ${(p.msg || '').replace(/[<>]/g, '')}
+      </div>`;
+    }).join('');
+  } catch(_) { /* offline mode — leave the placeholder text */ }
+})();
+</script>
+
+</div>
+</body>
+</html>

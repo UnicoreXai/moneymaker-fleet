@@ -1,0 +1,9 @@
+{
+  "_doc": "Per-node OpenRouter (or other gateway) model assignment for mm-agent. Looked up by node id (node-NN). Falls back to MM_DEFAULT_MODEL in .env if missing.",
+  "_why_per_node": "Running different models on different nodes lets the swarm forum reflect a diverse set of perspectives — useful when the queen synthesizes patterns. If you don't care, set them all to the same model (or just use the default).",
+  "node-01": { "model": "deepseek/deepseek-chat-v3.1",         "display_name": "node-01 - deepseek-v3" },
+  "node-02": { "model": "meta-llama/llama-3.3-70b-instruct",   "display_name": "node-02 - llama-3.3-70b" },
+  "node-03": { "model": "qwen/qwen-2.5-72b-instruct",          "display_name": "node-03 - qwen-2.5-72b" },
+  "node-04": { "model": "mistralai/mistral-large-2411",        "display_name": "node-04 - mistral-large" },
+  "node-05": { "model": "google/gemini-flash-1.5",             "display_name": "node-05 - gemini-flash" }
+}

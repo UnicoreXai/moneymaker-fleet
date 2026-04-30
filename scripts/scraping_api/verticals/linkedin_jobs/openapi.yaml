@@ -1,0 +1,150 @@
+openapi: 3.0.3
+info:
+  title: LinkedIn Jobs Scraper API
+  description: |
+    Scrape public LinkedIn job listings through residential IPs sourced via
+    your residential proxy provider. Powered by your fleet of tun2socks-bound
+    nodes. Same backend as
+    the generic moneymaker-fleet Scraping API — vertical wrapper with
+    LinkedIn-specific URL builders so you don't have to memorize
+    LinkedIn's `f_E` / `f_JT` / `f_WT` filter codes.
+
+    Returns raw HTML — parse the embedded JSON-LD or DOM client-side.
+    No login, no session cookies — only public guest-view pages.
+  version: 0.1.0
+  contact:
+    name: moneymaker-fleet
+    url: https://example.com
+servers:
+  - url: https://api.example.com
+    description: Production
+security:
+  - bearerAuth: []
+paths:
+  /v1/scrape/linkedin-jobs:
+    get:
+      summary: Search LinkedIn job listings
+      operationId: linkedinJobsSearch
+      parameters:
+        - name: keywords
+          in: query
+          required: true
+          schema:
+            type: string
+          example: senior python engineer
+        - name: location
+          in: query
+          schema:
+            type: string
+          example: San Francisco
+        - name: experience
+          in: query
+          schema:
+            type: string
+            enum: [internship, entry, associate, mid-senior, director, executive]
+        - name: job_type
+          in: query
+          schema:
+            type: string
+            enum: [full-time, part-time, contract, temporary, volunteer, internship]
+        - name: remote
+          in: query
+          schema:
+            type: string
+            enum: [on-site, remote, hybrid]
+        - name: posted_since
+          in: query
+          schema:
+            type: string
+            enum: [past-day, past-week, past-month]
+        - name: start
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 975
+            default: 0
+          description: Pagination offset (0, 25, 50, ...)
+        - name: timeout_s
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: HTML of the LinkedIn search results page
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrapeResponse"
+        "401":
+          description: Missing or invalid API key
+        "429":
+          description: Rate limit or monthly cap exceeded
+        "502":
+          description: Upstream proxy error
+  /v1/scrape/linkedin-jobs/posting/{job_id}:
+    get:
+      summary: Fetch a single LinkedIn job posting
+      operationId: linkedinJobsPosting
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "3829473829"
+      responses:
+        "200":
+          description: HTML of the job posting page
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrapeResponse"
+  /v1/scrape/linkedin-jobs/company/{company_slug}:
+    get:
+      summary: Fetch a company's public jobs page
+      operationId: linkedinJobsCompany
+      parameters:
+        - name: company_slug
+          in: path
+          required: true
+          schema:
+            type: string
+          example: anthropic
+      responses:
+        "200":
+          description: HTML of the company jobs page
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrapeResponse"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    ScrapeResponse:
+      type: object
+      properties:
+        request_id:
+          type: string
+        status_code:
+          type: integer
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        body:
+          type: string
+          description: The full HTML body of the LinkedIn page.
+        body_truncated:
+          type: boolean
+        ip_used:
+          type: string
+          description: The residential IP that egressed the request.
+        proxy_node:
+          type: string
+        latency_ms:
+          type: integer

@@ -1,0 +1,19 @@
+{
+  "_comment": "Example residential-proxy pool for the scraping API. Copy to fleet_proxies.json (gitignored) and replace placeholders with real per-node proxy URLs.",
+  "_format": "Each entry: { proxy_url: 'http://USER:PASS@HOST:PORT', host_ip: 'public IP of the node hosting this proxy (ops only)' }",
+  "_egress_note": "All proxy URLs in this example use RFC 5737 documentation IPs. Real config points to your residential-proxy provider's per-IP credentials (e.g. Proxy-Cheap, IPRoyal).",
+  "proxies": {
+    "node-01": {
+      "proxy_url": "http://USER:PASS@198.51.100.1:8080",
+      "host_ip": "203.0.113.1"
+    },
+    "node-02": {
+      "proxy_url": "http://USER:PASS@198.51.100.2:8080",
+      "host_ip": "203.0.113.2"
+    },
+    "node-03": {
+      "proxy_url": "http://USER:PASS@198.51.100.3:8080",
+      "host_ip": "203.0.113.3"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "moneymaker-fleet-dashboard",
+  "version": "0.1.0",
+  "description": "Password-gated static dashboard host for moneymaker-fleet",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
+}

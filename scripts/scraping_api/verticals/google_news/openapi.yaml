@@ -1,0 +1,125 @@
+openapi: 3.0.3
+info:
+  title: Google News Scraper API
+  description: |
+    Search and aggregate Google News through US residential IPs
+    (via your residential proxy provider). Same backend as the generic moneymaker-fleet
+    Scraping API — vertical wrapper with Google News URL builders
+    plus an /rss route that returns structured XML for easier parsing.
+
+    The /rss route is recommended for production: Google rate-limits
+    HTML scraping more aggressively than RSS, and RSS is structured
+    so you don't have to maintain a parser against frequent UI
+    changes.
+  version: 0.1.0
+  contact:
+    name: moneymaker-fleet
+    url: https://example.com
+servers:
+  - url: https://api.example.com
+    description: Production
+security:
+  - bearerAuth: []
+paths:
+  /v1/scrape/google-news/search:
+    get:
+      summary: Run a Google News search (HTML)
+      operationId: googleNewsSearch
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          example: openai funding
+        - name: hl
+          in: query
+          schema:
+            type: string
+            default: en-US
+        - name: gl
+          in: query
+          schema:
+            type: string
+            default: US
+        - name: when
+          in: query
+          schema:
+            type: string
+            enum: ["1h", "1d", "7d", "1m", "1y"]
+        - name: timeout_s
+          in: query
+          schema:
+            type: integer
+            default: 15
+      responses:
+        "200":
+          description: HTML of the Google News results page
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrapeResponse"
+  /v1/scrape/google-news/topic/{topic_id}:
+    get:
+      summary: Fetch a Google News topic page
+      operationId: googleNewsTopic
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: CAAqIQgKIhtDQkFTRGdvSUwyMHZNRGRqTVhZU0FtVnVLQUFQAQ
+      responses:
+        "200":
+          description: HTML of the topic page
+  /v1/scrape/google-news/rss:
+    get:
+      summary: Fetch the Google News RSS feed for a query (RECOMMENDED)
+      operationId: googleNewsRss
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: hl
+          in: query
+          schema:
+            type: string
+            default: en-US
+        - name: gl
+          in: query
+          schema:
+            type: string
+            default: US
+      responses:
+        "200":
+          description: XML of the RSS feed (returned in `body` as a string)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    ScrapeResponse:
+      type: object
+      properties:
+        request_id:
+          type: string
+        status_code:
+          type: integer
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        body:
+          type: string
+        body_truncated:
+          type: boolean
+        ip_used:
+          type: string
+        proxy_node:
+          type: string
+        latency_ms:
+          type: integer

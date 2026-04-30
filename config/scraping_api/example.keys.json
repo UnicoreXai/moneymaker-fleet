@@ -1,0 +1,19 @@
+{
+  "_comment": "Example API-key file for the residential scraping API. Copy to keys.json (gitignored), then mint real keys via `python scripts/scraping_api/mint_key.py`.",
+  "_format": "Each entry: { label, monthly_cap, rate_per_minute, created_ts, active }",
+  "_tiers_suggested": {
+    "free":    { "monthly_cap": 100,     "rate_per_minute": 5  },
+    "hobby":   { "monthly_cap": 5000,    "rate_per_minute": 10 },
+    "startup": { "monthly_cap": 50000,   "rate_per_minute": 20 },
+    "pro":     { "monthly_cap": 250000,  "rate_per_minute": 60 }
+  },
+  "keys": {
+    "mm_sk_REPLACE_WITH_GENERATED_KEY": {
+      "label": "internal-test",
+      "monthly_cap": 1000,
+      "rate_per_minute": 10,
+      "created_ts": 0,
+      "active": true
+    }
+  }
+}

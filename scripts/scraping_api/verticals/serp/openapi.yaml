@@ -1,0 +1,174 @@
+openapi: 3.0.3
+info:
+  title: SERP Scraper API (Google + Bing + DuckDuckGo) [DEPRECATED]
+  description: |
+    DEPRECATED 2026-04-29: Google + DDG paths return degraded results
+    (Google → JS-gated interstitial; DDG → anti-bot anomaly page).
+    Use the purpose-built JSON endpoint at /v1/scrape/bing-search
+    instead. This entire /serp/* family will be removed 2026-06-01.
+
+    Scrape search engine results pages through US residential IPs
+    (via your residential proxy provider). Same backend as the generic moneymaker-fleet
+    Scraping API — vertical wrapper that builds the canonical search
+    URL for each engine.
+
+    Designed for SEO competitive analysis, rank tracking, and content
+    research. Returns raw HTML — parse organic results, ads, "people
+    also ask", and related-searches blocks client-side.
+  version: 0.1.0
+  contact:
+    name: moneymaker-fleet
+    url: https://example.com
+servers:
+  - url: https://api.example.com
+    description: Production
+security:
+  - bearerAuth: []
+paths:
+  /v1/scrape/serp/google:
+    get:
+      summary: Run a Google web search [DEPRECATED → /v1/scrape/bing-search]
+      deprecated: true
+      operationId: serpGoogle
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          example: best running shoes 2026
+        - name: num
+          in: query
+          schema:
+            type: integer
+            minimum: 10
+            maximum: 100
+            default: 10
+        - name: start
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: hl
+          in: query
+          schema:
+            type: string
+            default: en
+        - name: gl
+          in: query
+          schema:
+            type: string
+            default: us
+        - name: safe
+          in: query
+          schema:
+            type: string
+            enum: [active, off]
+      responses:
+        "200":
+          description: HTML of the Google SERP
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrapeResponse"
+  /v1/scrape/serp/google-images:
+    get:
+      summary: Run a Google Images search [DEPRECATED → /v1/scrape/bing-search]
+      deprecated: true
+      operationId: serpGoogleImages
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: hl
+          in: query
+          schema:
+            type: string
+            default: en
+        - name: gl
+          in: query
+          schema:
+            type: string
+            default: us
+      responses:
+        "200":
+          description: HTML of the image SERP
+  /v1/scrape/serp/bing:
+    get:
+      summary: Run a Bing web search [DEPRECATED → /v1/scrape/bing-search]
+      deprecated: true
+      operationId: serpBing
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: count
+          in: query
+          schema:
+            type: integer
+            minimum: 10
+            maximum: 50
+            default: 10
+        - name: first
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: cc
+          in: query
+          schema:
+            type: string
+            default: US
+      responses:
+        "200":
+          description: HTML of the Bing SERP
+  /v1/scrape/serp/duckduckgo:
+    get:
+      summary: Run a DuckDuckGo search [DEPRECATED → /v1/scrape/bing-search]
+      deprecated: true
+      operationId: serpDuckduckgo
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: kl
+          in: query
+          schema:
+            type: string
+            default: us-en
+      responses:
+        "200":
+          description: HTML of the DDG results
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    ScrapeResponse:
+      type: object
+      properties:
+        request_id:
+          type: string
+        status_code:
+          type: integer
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        body:
+          type: string
+        body_truncated:
+          type: boolean
+        ip_used:
+          type: string
+        proxy_node:
+          type: string
+        latency_ms:
+          type: integer

@@ -1,0 +1,93 @@
+{
+  "_doc": "Service -> payout-sender lookup. Used by scripts/realized_revenue_collector.py to classify incoming on-chain transfers to your main wallet. Match is case-insensitive on the `from` field of incoming token/native transfers. Multiple addresses per service supported (some services rotate hot wallets).",
+  "_classification_order": [
+    "1. Explicit (chain, address) sender match",
+    "2. Chain-agnostic candidate sender match",
+    "3. Exclusions: self_transfer / personal_inbound / dex_router / spam_token",
+    "4. Token-symbol heuristic (native + service-specific tokens)",
+    "5. Fall through to `unknown` and log to tmp/realized_revenue_unknown_senders.json for triage"
+  ],
+  "_filling_this_in": [
+    "When you receive your first payout from a service, copy the `from` address from the explorer and paste it here under the matching service. The collector will pick it up on the next run.",
+    "Until then, any payout will land under `unknown` — that's fine, it's reversible."
+  ],
+  "services": {
+    "pawns": {
+      "_note": "Pawns/IPRoyal pays USDT-ERC20 from a hot wallet. First payout will reveal the actual sender — paste here.",
+      "addresses": [],
+      "candidates_to_verify": [],
+      "chains": ["ethereum"],
+      "tokens": ["USDT", "USDC"]
+    },
+    "earnfm": {
+      "_note": "EarnFM pays via internal wallet system; on-chain payouts only after $15 threshold. Likely Solana USDC.",
+      "addresses": [],
+      "chains": ["solana"],
+      "tokens": ["USDC"]
+    },
+    "repocket": {
+      "addresses": [],
+      "chains": ["polygon", "bsc"],
+      "tokens": ["USDC"]
+    },
+    "traffmonetizer": {
+      "addresses": [],
+      "chains": ["ethereum", "bsc"],
+      "tokens": ["USDT"]
+    },
+    "bytelixir": {
+      "_note": "ByteLixir pays USDT-TRC20 (TRON). Out of scope for the Etherscan-family Layer 1 collector. Add TronScan support if/when ByteLixir hits payout threshold.",
+      "addresses": [],
+      "chains": ["tron"],
+      "tokens": ["USDT"]
+    },
+    "proxyrack": {
+      "addresses": [],
+      "chains": ["ethereum"],
+      "tokens": ["USDC"]
+    },
+    "anyone_protocol": {
+      "_note": "Anyone Protocol pays ANYONE token. Addresses populate on first payout.",
+      "addresses": [],
+      "chains": ["ethereum"],
+      "tokens": ["ANYONE"]
+    },
+    "mysterium": {
+      "addresses": [],
+      "chains": ["polygon"],
+      "tokens": ["MYST"]
+    }
+  },
+  "exclusions": {
+    "_doc": "Things that look like service revenue but aren't. Each match here causes the row to be silently dropped from the realized-revenue feed.",
+    "self_transfers": [],
+    "personal_inbound": [
+      {
+        "_note": "Example: CEX withdrawal address you used to fund the wallet. NEVER counted as revenue.",
+        "chain": "ethereum",
+        "address": "0x0000000000000000000000000000000000000000"
+      }
+    ],
+    "dex_routers": [
+      {
+        "_note": "Example: Uniswap V3 universal router. Self-swaps come back via routers; not service revenue.",
+        "chain": "ethereum",
+        "address": "0x0000000000000000000000000000000000000000",
+        "user_callable_bridge": false
+      }
+    ],
+    "spam_tokens_exact": ["AI", "BIT", "DOG"],
+    "spam_tokens_substring": ["VISIT-", ".COM", "AIRDROP"]
+  },
+  "_token_service_heuristic": {
+    "_doc": "Token symbol -> service mapping. Used as a last-resort classifier when sender-address match fails.",
+    "ANYONE": "anyone_protocol",
+    "MYST": "mysterium"
+  },
+  "_token_contracts": {
+    "_doc": "Per-chain reverse map of token contract addresses. Populate as needed; the collector only uses this to translate Etherscan tokenSymbol fields when they're missing.",
+    "ethereum": {},
+    "polygon": {},
+    "bsc": {}
+  }
+}

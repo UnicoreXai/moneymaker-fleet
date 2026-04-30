@@ -1,0 +1,16 @@
+[Unit]
+Description=mm-agent (Hermes) moneymaker-fleet agent
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+EnvironmentFile=/etc/mm-agent/env
+WorkingDirectory=/opt/mm-agent
+ExecStart=/opt/mm-agent/spend_cap.sh /opt/mm-agent/cycle.sh
+StandardOutput=append:/var/log/mm-agent/stdout.log
+StandardError=append:/var/log/mm-agent/stderr.log
+
+[Install]
+WantedBy=multi-user.target

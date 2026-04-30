@@ -1,0 +1,36 @@
+# Local secrets — NEVER commit
+.env
+*.env
+!config/example.env
+config/.vault.enc
+config/.vault.tmp
+config/.vault.key
+config/scraping_api/keys.json
+config/scraping_api/fleet_proxies.json
+config/fleet.json
+config/sender_addresses.json
+keystores/
+openrouter*.key
+
+# Runtime state
+tmp/
+data/
+screenshots/
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Editor / OS noise
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+*.log

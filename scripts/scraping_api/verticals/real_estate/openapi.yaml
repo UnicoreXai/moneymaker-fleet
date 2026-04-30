@@ -1,0 +1,160 @@
+openapi: 3.0.3
+info:
+  title: Real Estate Scraper API (Zillow + Redfin)
+  description: |
+    Scrape Zillow and Redfin public listings + property pages through US
+    residential IPs sourced from your fleet. Same backend as the generic moneymaker-fleet
+    Residential Scraping API — vertical wrapper with Zillow/Redfin URL
+    builders.
+
+    Listings on both sites are embedded as JSON inside `<script>` tags
+    on the rendered HTML — fetch and parse client-side. We DO NOT
+    bypass paywalls or hit internal-only endpoints; only the same
+    pages a logged-out visitor sees.
+  version: 0.1.0
+  contact:
+    name: moneymaker-fleet
+    url: https://example.com
+servers:
+  - url: https://api.example.com
+    description: Production
+security:
+  - bearerAuth: []
+paths:
+  /v1/scrape/real-estate/zillow/search:
+    get:
+      summary: Search Zillow listings
+      operationId: zillowSearch
+      parameters:
+        - name: location
+          in: query
+          required: true
+          schema:
+            type: string
+          example: Austin, TX
+        - name: for_sale
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - name: for_rent
+          in: query
+          schema:
+            type: boolean
+            default: false
+        - name: min_price
+          in: query
+          schema:
+            type: integer
+        - name: max_price
+          in: query
+          schema:
+            type: integer
+        - name: beds_min
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 10
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            default: 1
+        - name: timeout_s
+          in: query
+          schema:
+            type: integer
+            default: 25
+      responses:
+        "200":
+          description: HTML of the Zillow search page
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrapeResponse"
+  /v1/scrape/real-estate/zillow/property/{zpid}:
+    get:
+      summary: Fetch a single Zillow property
+      operationId: zillowProperty
+      parameters:
+        - name: zpid
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "12345678"
+      responses:
+        "200":
+          description: HTML of the property detail page
+  /v1/scrape/real-estate/redfin/search:
+    get:
+      summary: Search Redfin listings
+      operationId: redfinSearch
+      parameters:
+        - name: location
+          in: query
+          required: true
+          schema:
+            type: string
+          example: Seattle
+        - name: for_sale
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - name: min_price
+          in: query
+          schema:
+            type: integer
+        - name: max_price
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: HTML of the Redfin search page
+  /v1/scrape/real-estate/redfin/property:
+    get:
+      summary: Fetch a single Redfin property by URL
+      operationId: redfinProperty
+      parameters:
+        - name: url
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uri
+          example: https://www.redfin.com/WA/Seattle/123-Main-St-98103/home/123456
+      responses:
+        "200":
+          description: HTML of the property page
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    ScrapeResponse:
+      type: object
+      properties:
+        request_id:
+          type: string
+        status_code:
+          type: integer
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        body:
+          type: string
+        body_truncated:
+          type: boolean
+        ip_used:
+          type: string
+        proxy_node:
+          type: string
+        latency_ms:
+          type: integer

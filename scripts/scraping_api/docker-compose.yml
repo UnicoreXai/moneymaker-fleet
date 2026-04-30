@@ -1,0 +1,35 @@
+version: "3.8"
+
+# Run on a public-facing node. Bind to host port 8443.
+# Configs (proxies + keys) are bind-mounted from /etc/scraping-api/ on the host.
+# Logs land in /var/log/scraping-api/ on the host.
+
+services:
+  scraping-api:
+    build:
+      context: ../..   # repo root, so the Dockerfile can COPY scripts/scraping_api/...
+      dockerfile: scripts/scraping_api/Dockerfile
+    image: moneymaker-scraping-api:0.1.0
+    container_name: moneymaker-scraping-api
+    restart: unless-stopped
+    network_mode: bridge       # API itself egresses via host — only the
+                               # outbound URL fetches go through residential proxies
+                               # (per-request, by URL in the proxy pool).
+    ports:
+      - "8443:8443"
+    environment:
+      SCRAPING_API_PROXIES_PATH: /etc/scraping-api/fleet_proxies.json
+      SCRAPING_API_KEYS_PATH: /etc/scraping-api/keys.json
+      SCRAPING_API_LOG_PATH: /var/log/scraping-api/requests.jsonl
+      SCRAPING_API_TIMEOUT_S: "20"
+      SCRAPING_API_MAX_BODY: "2097152"
+    volumes:
+      - /etc/scraping-api:/etc/scraping-api:ro
+      - /var/log/scraping-api:/var/log/scraping-api
+    mem_limit: 512m
+    cpus: 1.0
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

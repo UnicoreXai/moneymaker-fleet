@@ -1,0 +1,25 @@
+{
+  "_schema": {
+    "version": 1,
+    "purpose": "Per-service lease registry preventing duplicate Track-B signups across the mm-agent swarm. Workers MUST read this file (via git pull at cycle start) before signing up for a new DePIN/airdrop service. If a service is listed with status 'piloting' or 'won', do NOT duplicate — pick a different candidate. Lease TTL is 7 days for 'piloting' (matches Track-B 7-day kill gate); 'won' has no TTL until the queen demotes it.",
+    "claim_record": {
+      "node": "node-NN — node that owns the lease",
+      "agent_handle": "[node-NN - <model-name>] — for traceability",
+      "ts_claimed": "ISO8601 UTC when lease was acquired",
+      "ts_expires": "ISO8601 UTC; piloting leases auto-expire 7d after ts_claimed",
+      "status": "piloting | won | abandoned",
+      "alias": "you+mmnodeNN@example.com used at signup",
+      "ref_used": "true | false — whether docs/REFERRALS.md ref was applied",
+      "evidence": "<=280 chars: signup result, first-cycle earnings, blockers"
+    },
+    "worker_protocol": [
+      "1. At cycle start: git pull master in $SKILLS_DIR.",
+      "2. Read services_claimed.json. Build set of names where status in {piloting, won} AND ts_expires > now.",
+      "3. When evaluating a Track-B candidate: if name in claimed-set AND owner != self, SKIP and log {\"action\":\"signup_dedup_skip\",\"service\":<name>,\"owner\":<node>}.",
+      "4. Before signup: write claim to $SKILLS_DIR/config/hermes/swarm-skills/services_claimed.json (status=piloting), commit '[node-NN] claim <service>', push. If push fails (race), git pull --rebase; if claim now exists under another node, abort signup.",
+      "5. After 7d: if no earnings, set status=abandoned in next push. If earnings>$0, set status=won.",
+      "6. Queen pass periodically prunes status=abandoned older than 30d."
+    ]
+  },
+  "claims": {}
+}

@@ -1,0 +1,165 @@
+openapi: 3.0.3
+info:
+  title: Amazon Product Scraper API
+  description: |
+    Scrape Amazon search results, product detail pages, reviews, and
+    bestsellers through residential IPs sourced from your fleet. Same
+    backend as the generic moneymaker-fleet Scraping API — vertical
+    wrapper with Amazon-specific URL builders.
+
+    Returns raw HTML — parse price, rating, ASIN list, etc.
+    client-side. We do not bypass Amazon's bot detection beyond using
+    a real residential IP; if Amazon serves a CAPTCHA or "Robot Check"
+    page, you'll get that HTML back and can retry.
+  version: 0.1.0
+  contact:
+    name: moneymaker-fleet
+    url: https://example.com
+servers:
+  - url: https://api.example.com
+    description: Production
+security:
+  - bearerAuth: []
+paths:
+  /v1/scrape/amazon-products/search:
+    get:
+      summary: Search Amazon products
+      operationId: amazonSearch
+      parameters:
+        - name: keyword
+          in: query
+          required: true
+          schema:
+            type: string
+          example: wireless mouse
+        - name: domain
+          in: query
+          schema:
+            type: string
+            enum: [com, co.uk, de, ca, com.au, co.jp, fr, es, it, in]
+            default: com
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            default: 1
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [price-asc-rank, price-desc-rank, review-rank, date-desc-rank]
+        - name: timeout_s
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: HTML of the Amazon search results page
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrapeResponse"
+  /v1/scrape/amazon-products/product/{asin}:
+    get:
+      summary: Fetch a product detail page by ASIN
+      operationId: amazonProduct
+      parameters:
+        - name: asin
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 10
+            maxLength: 10
+          example: B0CHX1W1XY
+        - name: domain
+          in: query
+          schema:
+            type: string
+            default: com
+      responses:
+        "200":
+          description: HTML of the product detail page
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrapeResponse"
+  /v1/scrape/amazon-products/reviews/{asin}:
+    get:
+      summary: Fetch reviews for a product
+      operationId: amazonReviews
+      parameters:
+        - name: asin
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: domain
+          in: query
+          schema:
+            type: string
+            default: com
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10
+            default: 1
+        - name: star_filter
+          in: query
+          schema:
+            type: string
+            enum: [all_stars, five_star, four_star, three_star, two_star, one_star]
+      responses:
+        "200":
+          description: HTML of the reviews page
+  /v1/scrape/amazon-products/bestsellers:
+    get:
+      summary: Fetch a category bestseller list
+      operationId: amazonBestsellers
+      parameters:
+        - name: category
+          in: query
+          required: true
+          schema:
+            type: string
+          example: electronics
+        - name: domain
+          in: query
+          schema:
+            type: string
+            default: com
+      responses:
+        "200":
+          description: HTML of the bestsellers page
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    ScrapeResponse:
+      type: object
+      properties:
+        request_id:
+          type: string
+        status_code:
+          type: integer
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        body:
+          type: string
+        body_truncated:
+          type: boolean
+        ip_used:
+          type: string
+        proxy_node:
+          type: string
+        latency_ms:
+          type: integer

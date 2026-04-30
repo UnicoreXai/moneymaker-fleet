@@ -1,0 +1,43 @@
+{
+  "_doc": "Per-node DePIN service spec used by scripts/single_node_setup.py. Each entry is one container attached via --network=container:tun2socks. Replace placeholder env values with real per-account creds before running. NEVER commit real values.",
+  "services": [
+    {
+      "name": "pawns",
+      "image": "iproyal/pawns-cli:latest",
+      "env": {
+        "PAWNS_USERNAME": "<your-pawns-username>",
+        "PAWNS_PASSWORD": "<your-pawns-password>"
+      }
+    },
+    {
+      "name": "repocket",
+      "image": "repocket/repocket:latest",
+      "env": {
+        "RP_EMAIL": "<your-repocket-email>",
+        "RP_API_KEY": "<your-repocket-api-key>"
+      }
+    },
+    {
+      "name": "earnfm",
+      "image": "earnfm/earnfm-client:latest",
+      "env": {
+        "EARNFM_TOKEN": "<your-earnfm-token>"
+      }
+    },
+    {
+      "name": "traffmonetizer",
+      "image": "traffmonetizer/cli_v2:latest",
+      "env": {
+        "TM_TOKEN": "<your-traffmonetizer-token>"
+      }
+    },
+    {
+      "name": "proxyrack",
+      "image": "proxyrack/pop:latest",
+      "env": {
+        "API_KEY": "<your-proxyrack-key>",
+        "DEVICE_ID": "<your-device-id>"
+      }
+    }
+  ]
+}

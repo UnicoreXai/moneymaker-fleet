@@ -1,0 +1,8 @@
+paramiko>=3.4
+requests>=2.31
+fastapi>=0.115
+uvicorn[standard]>=0.32
+pydantic>=2.9
+
+# Optional — only needed if you run the GBM projector
+# (regen_revenue_projection.py uses pure stdlib + urllib)

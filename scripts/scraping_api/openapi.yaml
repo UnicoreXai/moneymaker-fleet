@@ -1,0 +1,182 @@
+openapi: 3.0.3
+info:
+  title: moneymaker-fleet Residential Scraping API
+  description: |
+    Fetch any URL through a pool of residential IP addresses sourced from
+    your fleet's tun2socks egress — no datacenter fingerprint, automatic
+    rotation across nodes.
+
+    Built for SaaS market research, e-commerce price monitoring, and SEO
+    competitive scrapes where residential origin matters.
+  version: 0.1.0
+  contact:
+    name: moneymaker-fleet
+    url: https://example.com
+servers:
+  - url: https://api.example.com
+    description: Production
+  - url: http://localhost:8443
+    description: Local dev
+security:
+  - bearerAuth: []
+paths:
+  /v1/scrape:
+    post:
+      summary: Fetch a URL through a residential proxy
+      operationId: scrape
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScrapeRequest"
+      responses:
+        "200":
+          description: Successfully fetched the URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrapeResponse"
+        "400":
+          description: Malformed request
+        "401":
+          description: Missing or invalid API key
+        "429":
+          description: Rate limit or monthly cap exceeded
+        "502":
+          description: Upstream proxy error (no residential IP could complete the fetch)
+  /v1/health:
+    get:
+      summary: Service health
+      operationId: health
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+  /v1/usage:
+    get:
+      summary: Per-key usage counter
+      operationId: usage
+      responses:
+        "200":
+          description: Usage info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Usage"
+        "401":
+          description: Missing Authorization header
+        "403":
+          description: Invalid API key
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    ScrapeRequest:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
+          format: uri
+          example: https://api.ipify.org?format=json
+        options:
+          type: object
+          properties:
+            method:
+              type: string
+              enum: [GET, POST, HEAD]
+              default: GET
+            headers:
+              type: object
+              additionalProperties:
+                type: string
+            body:
+              type: string
+            timeout_s:
+              type: integer
+              minimum: 3
+              maximum: 60
+              default: 20
+            follow_redirects:
+              type: boolean
+              default: true
+            render_js:
+              type: boolean
+              default: false
+              description: Reserved for future JS-rendering tier; currently no-op.
+            country:
+              type: string
+              example: US
+              description: Reserved. Egress country is determined by your residential proxy provider.
+            premium:
+              type: boolean
+              default: false
+              description: Reserved.
+    ScrapeResponse:
+      type: object
+      properties:
+        request_id:
+          type: string
+          example: req_w-v8wa1qZ79YcihQ
+        status_code:
+          type: integer
+          example: 200
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        body:
+          type: string
+        body_truncated:
+          type: boolean
+        ip_used:
+          type: string
+          example: 198.51.100.1
+          description: The actual residential IP that egressed the request — verifiable independently.
+        proxy_node:
+          type: string
+          example: node-25
+        latency_ms:
+          type: integer
+          example: 1313
+    Health:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        fleet_proxies_total:
+          type: integer
+          example: 23
+        fleet_proxies_available:
+          type: integer
+          example: 23
+        in_flight:
+          type: integer
+        uptime_s:
+          type: integer
+        total_requests:
+          type: integer
+        version:
+          type: string
+    Usage:
+      type: object
+      properties:
+        label:
+          type: string
+        monthly_cap:
+          type: integer
+        requests_this_month:
+          type: integer
+        rate_per_minute:
+          type: integer
+        rate_used_in_window:
+          type: integer
+        rate_window_resets_in_s:
+          type: integer

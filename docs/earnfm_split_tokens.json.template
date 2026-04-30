@@ -1,0 +1,29 @@
+{
+  "_doc": "Template for the EarnFM 5-account split. Copy to tmp/earnfm_split_tokens.json (gitignored) and fill in real EARNFM_TOKEN values.",
+  "_steps": [
+    "1. Sign up for 5 EarnFM accounts at https://earn.fm/ref/KEVIS33F (or your own ref).",
+    "2. From each account's Profile -> Token, copy the harvester token.",
+    "3. Paste here under accounts.A, .B, .C, .D, .E.",
+    "4. Adjust assignments to map node labels -> account slot. Default below assigns 5 nodes per slot.",
+    "5. Pilot first: run on one node (the script's PILOT_LABEL) before propagating."
+  ],
+  "accounts": {
+    "A": "REPLACE_ME_with_token_for_account_A",
+    "B": "REPLACE_ME_with_token_for_account_B",
+    "C": "REPLACE_ME_with_token_for_account_C",
+    "D": "REPLACE_ME_with_token_for_account_D",
+    "E": "REPLACE_ME_with_token_for_account_E"
+  },
+  "assignments": [
+    { "node": "node-01", "acct": "A" },
+    { "node": "node-02", "acct": "A" },
+    { "node": "node-03", "acct": "A" },
+    { "node": "node-04", "acct": "A" },
+    { "node": "node-05", "acct": "A" },
+    { "node": "node-06", "acct": "B" },
+    { "node": "node-07", "acct": "B" },
+    { "node": "node-08", "acct": "B" },
+    { "node": "node-09", "acct": "B" },
+    { "node": "node-10", "acct": "B" }
+  ]
+}
