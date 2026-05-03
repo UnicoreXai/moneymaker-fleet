@@ -15,27 +15,45 @@ side effect of running services that publish referral programs.
 
 ## Per-service breakdown
 
+### DePIN bandwidth-sharing services
+
 | Service              | Maintainer earns                                                | You earn                                              |
 |----------------------|-----------------------------------------------------------------|-------------------------------------------------------|
-| **Pawns**            | 10% of your lifetime earnings                                   | $3 tiered initial bonus + standard bandwidth payouts  |
-| **EarnFM**           | 10% of your lifetime earnings                                   | $5 joinee bonus, 1 device per IP                      |
-| **Repocket**         | 10% of your lifetime earnings + $5 referral bonus               | Standard bandwidth payouts, max 2 devices per IP      |
+| **Pawns**            | $1 × your first 3 payouts, then 10% lifetime                    | $3 mutual signup bonus + standard bandwidth payouts   |
+| **EarnFM**           | 10% of your lifetime earnings, no cap, no expiry                | $5 joinee bonus, 1 device per IP                      |
+| **Repocket**         | 10% lifetime + $5 (paid only after your **first payout**)       | Standard bandwidth payouts, max 2 devices per IP      |
 | **TraffMonetizer**   | 10% of your lifetime referral payouts + $5 joinee bonus         | Standard bandwidth payouts                            |
 | **ByteLixir**        | **50% LIFETIME** of your referral revenue + $1 joinee           | Standard payouts (USDT-TRC20)                         |
 | **Bitping**          | flat $5 mutual on signup                                        | flat $5 + standard payouts (BTC native)               |
-| **ProxyRack Peer**   | 10% on referral earnings                                        | Standard payouts                                      |
-| **Wipter**           | up to 10% commission                                            | Standard payouts                                      |
-| **URnetwork (ur.io)**| 50% of your referral earnings + 50% of your referral bonus      | Standard payouts (USDC on Polygon/Solana)             |
-| **Titan Edge**       | TBD — check operator dashboard                                  | Standard TFUEL payouts                                |
+| **ProxyRack Peer**   | 10% on referral earnings + $5 to invitee                        | $5 + standard payouts (standalone "Affiliate Program" is in re-launch waitlist) |
+| **Wipter**           | up to 10% commission (treat as ceiling, not floor)              | Standard payouts                                      |
+| **URnetwork (ur.io)**| 50% of your referral earnings + 50% of your signup bonus        | Standard payouts (USDC on Polygon/Solana)             |
+| **Titan Edge**       | code published, but the maintainer's pilot earned $0 in 64h     | Standard TFUEL payouts (see `SERVICE_RESEARCH.md`)    |
 | **Grass**            | 20% L1 / 10% L2 / 5% L3 lifetime points                         | Standard points                                       |
 | **Nodepay**          | 10% L1 / 5% L2                                                  | Standard points                                       |
 | **Teneo Protocol**   | 5,000 pts/referral                                              | 2,500 pts joinee                                      |
 | **Gradient Network** | 20 pts on 72h uptime + 10% L1 perpetual + 5% L2                 | Standard points                                       |
 | **PacketStream**     | 20% lifetime promotional                                        | Standard payouts                                      |
 
-Numbers reflect each service's published terms as of 2026-04. Programs
+### Infrastructure providers (high-LTV, recurring)
+
+These pay much higher than DePIN signup bonuses because they bill recurring
+subscriptions instead of one-shot. If you sign up via these links, the
+maintainer earns commission for as long as you're a paying customer
+(subject to each program's cookie window and clawback policy).
+
+| Service              | Maintainer earns                                                | You earn / why use it                                 |
+|----------------------|-----------------------------------------------------------------|-------------------------------------------------------|
+| **Hetzner Cloud**    | €10 / $10 referrer credit per qualifying signup                 | €20 / $20 referee credit (~2 months of CX33 free)     |
+| **IPRoyal**          | **10% lifetime, up to $2,000/client**, 60-day cookie, recurring | Alternative residential proxy provider; not exclusive |
+| **Bright Data**      | **50% revenue share, up to $2,500/client**, 90-day cookie, recurring | Enterprise residential proxies — fits scrapers that outgrow Proxy-Cheap |
+| **Decodo** (formerly SmartProxy) | up to 50% recurring (tiered)                        | Established residential proxy, free trial available   |
+
+Numbers reflect each program's published terms as of 2026-05. Programs
 change without notice — the underlying signup link remains valid even
-if the kickback rate has shifted.
+if the kickback rate has shifted. The infrastructure-provider rates are
+where the actual recurring revenue lives; DePIN signup bonuses are
+one-shot and small.
 
 ---
 
@@ -81,17 +99,38 @@ a referral is usually strictly better for you, not worse.
 
 ---
 
-## Hosting + proxy providers
+## Hosting + proxy providers — direct affiliate links
 
-These power the fleet itself, not its revenue.
+These power the fleet itself. Each is a recurring-revenue program that
+pays the maintainer for as long as you remain a paying customer (60-90
+day cookies, clawback for refunds during that window).
 
 - **Hetzner Cloud** — VPS provider used in the reference deployment.
-  No personal-account referral published; reach out to Hetzner if you
-  want a credit code for a new account.
+  Get the maintainer's referral code from the README, OR generate your
+  own from your Hetzner Cloud Console once you have an account
+  (Console → Profile → Referral Program). Program terms:
+  <https://www.hetzner.com/legal/referrals>
 - **Proxy-Cheap** — residential-proxy provider used for tun2socks
-  egress. Referral may be available; check the partner portal.
-- **IPRoyal** — alternate residential-proxy provider. 10% lifetime
-  affiliate via their portal.
+  egress. Partner portal: <https://www.proxy-cheap.com/affiliate-program>
+- **IPRoyal** — alternative residential-proxy provider with a strong
+  affiliate program. 10% lifetime, up to $2,000/client, 60-day cookie.
+  Partner portal: <https://iproyal.com/affiliate-program/>
+- **Bright Data** — enterprise residential proxies with the highest
+  affiliate payout in the category. 50% revenue share, up to $2,500/
+  client, 90-day cookie. Partner portal:
+  <https://brightdata.com/affiliate>
+- **Decodo** (formerly SmartProxy) — residential proxies with a free
+  trial. Up to 50% recurring (tiered). Partner portal:
+  <https://decodo.com/affiliate>
+
+### Why infrastructure-provider links are worth surfacing here
+
+DePIN signup bonuses are typically one-shot ($1-5) or small recurring
+(10% of low absolute amounts). Infrastructure providers bill recurring
+subscriptions of $10-300+/month, and the affiliate paying 10-50% of
+that recurring revenue is a much higher-LTV referral path. A single
+Bright Data or IPRoyal customer who sticks around for a year often
+exceeds the lifetime payout of 50+ DePIN bandwidth signups.
 
 ---
 

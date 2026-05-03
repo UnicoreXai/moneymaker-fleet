@@ -160,36 +160,54 @@ production fleet. Each link is a referral URL — signing up through it
 earns the maintainer a recurring commission at no extra cost to you, and
 in most cases nets you a signup bonus too.
 
-### Infrastructure
+### Infrastructure (highest-LTV — recurring revenue)
+
+These pay much more than DePIN signup bonuses. A single referred
+customer who sticks around 12 months often exceeds the lifetime payout
+of 50+ DePIN bandwidth signups.
 
 - **Hetzner Cloud** — VPS provider. CX33 boxes ($8.59/mo) hit the
   sweet spot for the included DePIN stack (4 vCPU lets tun2socks +
-  ~7 daemons coexist without contention). Sign up: <https://www.hetzner.com/cloud>
-  *(no referral code published yet — set `HETZNER_REF` in `.env` if you
-  have one.)*
+  ~7 daemons coexist without contention). €20 / $20 referee credit
+  (~2 months CX33 free) + €10 / $10 referrer credit. Get a code:
+  <https://www.hetzner.com/legal/referrals>
 - **Proxy-Cheap** — Verizon AS701 residential proxies, $3.60/mo each
   for 1 GB/mo. Sign up: <https://www.proxy-cheap.com>
-  *(refcode pending)*
+  Partner program: <https://www.proxy-cheap.com/affiliate-program>
+- **IPRoyal** — alternative residential proxy provider. **10% lifetime,
+  up to $2,000/client**, 60-day cookie, recurring on subscription.
+  Partner portal: <https://iproyal.com/affiliate-program/>
+- **Bright Data** — enterprise residential proxies for the segment that
+  outgrows Proxy-Cheap. **50% revenue share, up to $2,500/client**,
+  90-day cookie, recurring. Partner portal:
+  <https://brightdata.com/affiliate>
+- **Decodo** (formerly SmartProxy) — residential proxies with free
+  trial. Up to 50% recurring (tiered). Partner portal:
+  <https://decodo.com/affiliate>
 
-### Bandwidth-sharing services
+### Bandwidth-sharing services (small recurring + signup bonuses)
 
-- **Pawns.app** (formerly IPRoyal Pawns) — 10% lifetime referral + $3
-  tiered initial bonus. Sign up:
+- **Pawns.app** (formerly IPRoyal Pawns) — $1 × your first 3 payouts,
+  then 10% lifetime, plus $3 mutual signup bonus. Sign up:
   <https://pawns.app/?r=19368951>
-- **EarnFM** — 10% lifetime + $5 joinee bonus, 1 device per IP. Sign up:
-  <https://earn.fm/ref/KEVIS33F>
-- **Repocket** — 10% lifetime + $5 referral bonus, max 2 devices/IP.
-  Sign up: <https://link.repocket.com/>
+- **EarnFM** — 10% lifetime, no cap, no expiry, + $5 joinee bonus,
+  1 device per IP. Sign up: <https://earn.fm/ref/KEVIS33F>
+- **Repocket** — 10% lifetime + $5 (paid only after your first
+  payout), max 2 devices/IP. Sign up: <https://link.repocket.com/>
   *(refcode pending — fill in the placeholder once you have it)*
 - **TraffMonetizer** — 10% lifetime on referral payouts + $5 joinee
   bonus. Sign up: <https://traffmonetizer.com/?aff=2116090>
 - **ByteLixir** — **50% LIFETIME** payouts on referral revenue + $1
-  joinee. Sign up: <https://bytelixir.com/r/5TQHS6GNCJQF>
+  joinee (highest DePIN-side rate). Sign up:
+  <https://bytelixir.com/r/5TQHS6GNCJQF>
 - **Bitping** — flat $5/$5 mutual on signup. Sign up:
   <https://app.bitping.com>
-- **ProxyRack Peer Program** — 10% on referral earnings. Sign up:
+- **ProxyRack Peer Program** — 10% on referral earnings + $5 to
+  invitee. Sign up:
   <https://peer.proxyrack.com/ref/i2ip7fsyw5osb9l5tecenvnenl7lz3qvwxevvvtx>
-- **Wipter** — up to 10% commission. Sign up: <https://www.wipter.com/en>
+  *(standalone "Affiliate Program" is in re-launch waitlist)*
+- **Wipter** — up to 10% commission (treat as ceiling, not floor).
+  Sign up: <https://www.wipter.com/en>
 
 ### DePIN compute / relay
 
