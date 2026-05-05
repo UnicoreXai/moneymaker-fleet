@@ -68,6 +68,36 @@ auth = AuthBackend.load(KEYS_PATH)
 metrics = MetricsLogger.open(LOG_PATH)
 
 
+# --- RapidAPI marketplace proxy translation -------------------------------
+# If you list this API on RapidAPI's marketplace, customer requests come
+# through rapidapi.com's proxy with an X-RapidAPI-Proxy-Secret header (a
+# fixed value per API, found in your RapidAPI Studio Gateway tab).
+#
+# This middleware detects that header and rewrites Authorization to your
+# internal API key so the existing /v1/scrape auth path stays untouched.
+# When both env vars are unset, the middleware is a no-op (direct callers
+# must supply Authorization: Bearer <key> as before).
+#
+# Set on container start:
+#   -e RAPIDAPI_PROXY_SECRET=<your-rapidapi-proxy-secret>
+#   -e RAPIDAPI_INTERNAL_KEY=<an-active-key-from-keys.json>
+RAPIDAPI_PROXY_SECRET = os.environ.get("RAPIDAPI_PROXY_SECRET", "").strip()
+RAPIDAPI_INTERNAL_KEY = os.environ.get("RAPIDAPI_INTERNAL_KEY", "").strip()
+
+
+@app.middleware("http")
+async def _rapidapi_proxy_auth(request: Request, call_next):
+    if RAPIDAPI_PROXY_SECRET and RAPIDAPI_INTERNAL_KEY:
+        incoming = request.headers.get("x-rapidapi-proxy-secret", "").strip()
+        if incoming and incoming == RAPIDAPI_PROXY_SECRET:
+            new_headers = list(request.scope.get("headers", []))
+            new_headers = [(k, v) for (k, v) in new_headers if k.lower() != b"authorization"]
+            new_headers.append((b"authorization", f"Bearer {RAPIDAPI_INTERNAL_KEY}".encode("latin-1")))
+            request.scope["headers"] = new_headers
+    return await call_next(request)
+# --- /RapidAPI marketplace proxy translation -----------------------------
+
+
 class ScrapeOptions(BaseModel):
     render_js: bool = Field(False, description="Reserved for future JS rendering. Currently no-op.")
     country: Optional[str] = Field(None, description="Reserved. Egress country is determined by your residential proxy provider.")
